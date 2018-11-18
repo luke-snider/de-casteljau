@@ -6,7 +6,7 @@
 	<array>
 		<dict>
 			<key>path</key>
-			<string>DeCasteljau.py</string>
+			<string>extension.py</string>
 			<key>preferredName</key>
 			<string>DeCasteljau</string>
 			<key>shortKey</key>

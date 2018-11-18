@@ -282,6 +282,3 @@ class cubicVisualisator(BaseWindowController):
                 text("%s" %(str(pt)), (pt[0]+10,pt[1]))
             else:
                 text("%s" %(str(pt)), (pt[0]-70,pt[1]))
-
-
-cubicVisualisator()
