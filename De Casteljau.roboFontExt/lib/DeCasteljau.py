@@ -181,12 +181,12 @@ class cubicVisualisator(BaseWindowController):
                 if self.w.five.get() == 1:
                     divisor = 10
                     for interpolFactor in range(0,100,divisor):
-                        interpolFactor = interpolFactor / 100
+                        interpolFactor = interpolFactor * 0.01
                         stepsToDraw.append(interpolFactor)
                 if self.w.ten.get() == 1:
                     divisor = 5
                     for interpolFactor in range(0,100,divisor):
-                        interpolFactor = interpolFactor / 100
+                        interpolFactor = interpolFactor * 0.01
                         stepsToDraw.append(interpolFactor)
                 else:
                     interpolFactor = float("{0:.2f}".format(self.w.sliderInterpol.get()))
