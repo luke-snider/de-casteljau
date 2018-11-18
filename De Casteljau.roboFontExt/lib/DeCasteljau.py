@@ -49,7 +49,7 @@ class cubicVisualisator(BaseWindowController):
         self.w.open()
         self.interpolatedPoints = []
 
-    def sliderCallback(self, sender):
+    def updateView(self):
         UpdateCurrentGlyphView()
 
     def checkbox5Callback(self, sender):
@@ -59,7 +59,7 @@ class cubicVisualisator(BaseWindowController):
         if sender.get() == 0:
             if self.w.ten.get() == 0:
                 self.w.sliderInterpol.enable(True)
-        UpdateCurrentGlyphView()
+        self.updateView()
 
     def checkbox10Callback(self, sender):
         if sender.get() == 1:
@@ -68,10 +68,13 @@ class cubicVisualisator(BaseWindowController):
         if sender.get() == 0:
             if self.w.five.get() == 0:
                 self.w.sliderInterpol.enable(True)
-        UpdateCurrentGlyphView()
+        self.updateView()
+
+    def sliderCallback(self, sender):
+        self.updateView()
 
     def updateFromUI(self, sender):
-        UpdateCurrentGlyphView()
+        self.updateView()
 
     def draw(self, notification):
         glyph = notification["glyph"]
@@ -87,7 +90,7 @@ class cubicVisualisator(BaseWindowController):
             int(str(self.w.ptThickness.get()))
         except ValueError:
             self.w.ptThickness.set(str(2))
-        UpdateCurrentGlyphView()
+        self.updateView()
 
     def settingStrokeThicknessFromUI(self, sender):
         
@@ -95,9 +98,7 @@ class cubicVisualisator(BaseWindowController):
             int(str(self.w.strokeThickness.get()))
         except ValueError:
             self.w.strokeThickness.set(str(1))
-        UpdateCurrentGlyphView()
-		    
-
+        self.updateView()
 
     def interpolatePoint(self, pt1, pt2, interpolFactor):
         v = interpolFactor
