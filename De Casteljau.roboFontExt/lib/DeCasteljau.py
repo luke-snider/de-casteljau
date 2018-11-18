@@ -1,7 +1,8 @@
 #coding=utf-8
 from __future__ import print_function
 
-'''De Casteljau Algorythm Live Visualisation
+'''
+De Casteljau Algorythm Live Visualisation
 Copyright (c) 2018 Lukas Schneider / Revolver Type Foundry. All rights reserved.
 www.revolvertypefoundry.com / info@revolvertypefoundry.com
 
@@ -10,7 +11,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 from mojo.drawingTools import *
 from defconAppKit.windows.baseWindow import BaseWindowController
-from AppKit import NSColor,NSBezierPath
+
+from AppKit import NSColor, NSBezierPath
 from vanilla import *
 from mojo.events import addObserver, removeObserver
 from mojo.UI import UpdateCurrentGlyphView
@@ -32,8 +34,8 @@ class cubicVisualisator(BaseWindowController):
         y = 35
         self.w.oneTwoThree = SegmentedButton((10, y-5, 125, 20), [dict(title=" 1 "), dict(title=" 2 "), dict(title=" 3 ")], callback=self.updateFromUI)
         self.w.oneTwoThree.set(2)
-        self.w.five = CheckBox((130, y-2, 40, 16), '5', callback=self.checkbox5Callback, value=False, sizeStyle="small")
-        self.w.ten = CheckBox((160, y-2, 40, 16), '10', callback=self.checkbox10Callback, value=False, sizeStyle="small")
+        self.w.five = CheckBox((140, y-2, 40, 16), '5', callback=self.checkbox5Callback, value=False, sizeStyle="small")
+        self.w.ten = CheckBox((170, y-2, 40, 16), '10', callback=self.checkbox10Callback, value=False, sizeStyle="small")
         self.w.off = CheckBox((-45, y-2, 40, 16), 'off', callback=self.updateFromUI, value=False, sizeStyle="small")
         y = 65
         self.w.colorFill = ColorWell((10, y, 30, 18), color=self.defaultColorFill, callback=self.updateFromUI)
@@ -49,17 +51,17 @@ class cubicVisualisator(BaseWindowController):
         self.w.open()
         self.interpolatedPoints = []
 
-    def sliderCallback(self, sender):
+    def updateView(self):
         UpdateCurrentGlyphView()
 
-    def checkbox5Callback(self, sender):
+    def checkbox5Callback(self, sender): 
         if sender.get() == 1:
             self.w.ten.set(0)
             self.w.sliderInterpol.enable(False)
         if sender.get() == 0:
             if self.w.ten.get() == 0:
                 self.w.sliderInterpol.enable(True)
-        UpdateCurrentGlyphView()
+        self.updateView()
 
     def checkbox10Callback(self, sender):
         if sender.get() == 1:
@@ -68,10 +70,13 @@ class cubicVisualisator(BaseWindowController):
         if sender.get() == 0:
             if self.w.five.get() == 0:
                 self.w.sliderInterpol.enable(True)
-        UpdateCurrentGlyphView()
+        self.updateView()
+
+    def sliderCallback(self, sender):
+        self.updateView()
 
     def updateFromUI(self, sender):
-        UpdateCurrentGlyphView()
+        self.updateView()
 
     def draw(self, notification):
         glyph = notification["glyph"]
@@ -82,22 +87,18 @@ class cubicVisualisator(BaseWindowController):
         removeObserver(self, "draw")
 
     def settingPtThicknessFromUI(self, sender):
-        
-        try: 
+        try:
             int(str(self.w.ptThickness.get()))
         except ValueError:
             self.w.ptThickness.set(str(2))
-        UpdateCurrentGlyphView()
+        self.updateView()
 
     def settingStrokeThicknessFromUI(self, sender):
-        
-        try: 
+        try:
             int(str(self.w.strokeThickness.get()))
         except ValueError:
             self.w.strokeThickness.set(str(1))
-        UpdateCurrentGlyphView()
-		    
-
+        self.updateView()
 
     def interpolatePoint(self, pt1, pt2, interpolFactor):
         v = interpolFactor
@@ -113,33 +114,24 @@ class cubicVisualisator(BaseWindowController):
         pt_x_rounded = float("{0:.1f}".format(calculated[0]))
         pt_y_rounded = float("{0:.1f}".format(calculated[1]))
         return (pt_x_rounded, pt_y_rounded)
-
-
     
     def getSelectedPoints(self, segmentIndex, segment, contour):
         collectionOfSelectedPoints = []
         tempList = []
         if segment.type == "curve":
             
-            
             for pts2 in contour.segments[segmentIndex-1]:
                  tempList.append(pts2)
                  
-                 
-                 
             collectionOfSelectedPoints.append((tempList[-1].x, tempList[-1].y, tempList[-1].type))
             
-            
             for pts in segment.points:
-                
                 collectionOfSelectedPoints.append((pts.x, pts.y, pts.type))
             
         return collectionOfSelectedPoints
 
-
     def drawingCalculation(self, glyph, listOfSelectedPoints, interpolFactor):
 
-        
         color = self.w.colorFill.get()
         
         if len(listOfSelectedPoints) != 0:
@@ -147,19 +139,16 @@ class cubicVisualisator(BaseWindowController):
             
             path.setLineWidth_(int(self.w.strokeThickness.get()))
             
-            for idx, pts in enumerate(listOfSelectedPoints): 
+            for idx, pts in enumerate(listOfSelectedPoints):
                 
                 if idx == 0:
                     (startpoint_x, startpoint_y) = (listOfSelectedPoints[0][0], listOfSelectedPoints[0][1])
                     path.moveToPoint_((startpoint_x, startpoint_y))
                 
-                else:                 
+                else:
                     path.lineToPoint_(((pts[0]),(pts[1])))
                     color.set()
                     path.stroke()
-            
-            
-            
             
             processedPoints = []
             interpolatedPoints = []
@@ -171,10 +160,8 @@ class cubicVisualisator(BaseWindowController):
                     processedPoints.append(pt2)
                     
                     
-                    
                     interpolatedPt = self.interpolatePoint(pt1, pt2, interpolFactor)
                     interpolatedPoints.append(interpolatedPt)
-                    
                     
                     
                     if interpolatedPt in processedPoints:
@@ -182,36 +169,28 @@ class cubicVisualisator(BaseWindowController):
                     else:
                         pass
                         
-                        
-                        
                 except IndexError:
                     pass
             
             self.interpolatedPoints = interpolatedPoints
 
-
-
     def drawTangents(self, glyph):
-        
         if self.w.off.get() != 1:
             try:
-                
-                
                 stepsToDraw = []
                 if self.w.five.get() == 1:
                     divisor = 10
                     for interpolFactor in range(0,100,divisor):
-                        interpolFactor = interpolFactor / 100
+                        interpolFactor = interpolFactor * 0.01
                         stepsToDraw.append(interpolFactor)
                 if self.w.ten.get() == 1:
                     divisor = 5
                     for interpolFactor in range(0,100,divisor):
-                        interpolFactor = interpolFactor / 100
+                        interpolFactor = interpolFactor * 0.01
                         stepsToDraw.append(interpolFactor)
                 else:
                     interpolFactor = float("{0:.2f}".format(self.w.sliderInterpol.get()))
-                    stepsToDraw.append(interpolFactor)                
-                
+                    stepsToDraw.append(interpolFactor)
                 
                 for contour in glyph.contours:
                     for segmentIndex, segment in enumerate(contour.segments):
@@ -221,7 +200,7 @@ class cubicVisualisator(BaseWindowController):
                         if segment.type == "line":
                             pass
                         else:
-                            for interpolFactor in stepsToDraw:                                
+                            for interpolFactor in stepsToDraw:
                                 
                                 listOfSelectedPoints = self.getSelectedPoints(segmentIndex, segment, contour)
                                 self.drawingCalculation(glyph, listOfSelectedPoints, interpolFactor)
@@ -249,9 +228,8 @@ class cubicVisualisator(BaseWindowController):
             except TypeError:
                 pass
 
-
     def drawDot(self, point, colorDots):
-        widthP = int(self.w.ptThickness.get())      
+        widthP = int(self.w.ptThickness.get())
         path = NSBezierPath.bezierPath()
         path.moveToPoint_((point[0]-widthP, point[1]+0))
         path.curveToPoint_controlPoint1_controlPoint2_((point[0]+0, point[1]+widthP),(point[0]-widthP, point[1]+widthP), (point[0]+0, point[1]+widthP))
@@ -261,9 +239,8 @@ class cubicVisualisator(BaseWindowController):
         path.closePath()
         colorDots.set()
         path.fill()
-        
-        
-        
+
+
 
     # not used
     def drawPointCoordinates(self, glyph, pt):
@@ -282,6 +259,3 @@ class cubicVisualisator(BaseWindowController):
                 text("%s" %(str(pt)), (pt[0]+10,pt[1]))
             else:
                 text("%s" %(str(pt)), (pt[0]-70,pt[1]))
-
-
-cubicVisualisator()
